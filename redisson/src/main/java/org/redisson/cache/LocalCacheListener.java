@@ -247,6 +247,9 @@ public abstract class LocalCacheListener {
     
     public RFuture<Void> clearLocalCacheAsync() {
         cache.clear();
+        if (options.getSyncStrategy() == SyncStrategy.NONE) {
+            return new CompletableFutureWrapper<>(CompletableFuture.completedFuture(null));
+        }
         byte[] id = generateId();
         RFuture<Long> future = invalidationTopic.publishAsync(new LocalCachedMapClear(instanceId, id, true));
         CompletionStage<Void> f = future.thenCompose(res -> {
